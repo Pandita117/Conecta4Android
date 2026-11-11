@@ -114,7 +114,8 @@ fun AppNavigation() {
             )
         }
 
-
+                //metemos los chavales para el conecta
+        // el ?. safe call
             composable("tablero_conecta/{j1}/{j2}") { backStackEntry ->
                 val player1 = backStackEntry.arguments?.getString("j1") ?: "Jugador 1"
                 val player2 = backStackEntry.arguments?.getString("j2") ?: "Jugador 2"
@@ -245,7 +246,7 @@ fun PantallaPrincipal(
 
 
         //aca para que no anden seleccionando el mismo chaval
-        val botonHabilitado = jugador1Select != null && jugador2Select != null && jugador1Select != jugador2Select
+        val botonHabilitado = jugador1Select == null && jugador2Select == null && jugador1Select == jugador2Select
 
 
         Button(
@@ -423,31 +424,6 @@ fun PantallaTablero(
     var juegoEnCurso by remember { mutableStateOf(true) }
     var ganador by remember { mutableStateOf<String?>(null) }
 
-        //aca hace el registro en la base data
-    fun registrarResultadoBD(ganadorNombre: String?, esEmpate: Boolean) {
-        scope.launch {
-            val lista = dao.getJugadores()
-            val p1 = lista.find { it.gamerTag == nombreJ1 }
-            val p2 = lista.find { it.gamerTag == nombreJ2 }
-
-            if (p1 != null && p2 != null) {
-                //empatar
-                if (esEmpate) {
-                    dao.insertarOactualizar(p1.copy(draws = p1.draws + 1, jugadas = p1.jugadas + 1))
-                    dao.insertarOactualizar(p2.copy(draws = p2.draws + 1, jugadas = p2.jugadas + 1))
-                    //win del plei 1
-                } else if (ganadorNombre == nombreJ1) {
-                    dao.insertarOactualizar(p1.copy(wins = p1.wins + 1, jugadas = p1.jugadas + 1))
-                    dao.insertarOactualizar(p2.copy(looses = p2.looses + 1, jugadas = p2.jugadas + 1))
-                    //win plei 2
-                } else if (ganadorNombre == nombreJ2) {
-                    dao.insertarOactualizar(p1.copy(looses = p1.looses + 1, jugadas = p1.jugadas + 1))
-                    dao.insertarOactualizar(p2.copy(wins = p2.wins + 1, jugadas = p2.jugadas + 1))
-                }
-            }
-        }
-    }
-
     //basicamente solo checamos si tiene espacio pues no empate si se lleno empate
     fun comprobarEmpate(tab: Array<IntArray>): Boolean {
         for (col in 0..5) {
@@ -461,11 +437,15 @@ fun PantallaTablero(
             var count = 0
             var row = fila + dFila
             var c = col + dCol
+            //row col
             while (row in 0..5 && c in 0..5 && tab[row][c] == jugador) {
                 count++
+                // +=
                 row += dFila
+                //+=
                 c += dCol
             }
+            //regresa el contador
             return count
         }
 
@@ -482,11 +462,11 @@ fun PantallaTablero(
         if (!juegoEnCurso) return
         //el down to es basicamente un pusheo a la pila que va hasta la primera que tenga espacio vacia
         for (fila in 5 downTo 0) {
-            if (tablero[fila][columna] == 0) {
+            if (tablero[columna][fila] == 0) {
                 //hace tablero niu clonando
                 val nuevoTablero = Array(6) { f -> tablero[f].clone() }
                 val jugadorActual = if (turnoJ1) 1 else 2
-
+                //jugador actual
                 nuevoTablero[fila][columna] = jugadorActual
                 tablero = nuevoTablero
                 if (comprobarVictoria(nuevoTablero, fila, columna, jugadorActual)) {
@@ -499,6 +479,7 @@ fun PantallaTablero(
                     juegoEnCurso = false
                     registrarResultadoBD(ganadorNombre = null, esEmpate = true)
                 } else {
+                    //cambia de deste
                     turnoJ1 = !turnoJ1
                 }
                 break
@@ -522,6 +503,7 @@ fun PantallaTablero(
                 )
             } else {
                 Text(
+                    //!null
                     text = if (ganador != null) "¡Ganador: $ganador!" else "Empate",
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.primary
@@ -617,3 +599,190 @@ fun PantallaTablero(
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//aca hace el registro en la base data
+fun registrarResultadoBD(ganadorNombre: String?, esEmpate: Boolean) {
+    scope.launch {
+        val lista = dao.getJugadores()
+        val p1 = lista.find { it.gamerTag == nombreJ1 }
+        val p2 = lista.find { it.gamerTag == nombreJ2 }
+
+        if (p1 != null && p2 != null) {
+            //empatar
+            if (esEmpate) {
+                dao.insertarOactualizar(p1.copy(draws = p1.draws + 1, jugadas = p1.jugadas + 1))
+                dao.insertarOactualizar(p2.copy(draws = p2.draws + 1, jugadas = p2.jugadas + 1))
+                //win del plei 1
+            } else if (ganadorNombre == nombreJ1) {
+                dao.insertarOactualizar(p1.copy(wins = p1.wins + 1, jugadas = p1.jugadas + 1))
+                dao.insertarOactualizar(p2.copy(looses = p2.looses + 1, jugadas = p2.jugadas + 1))
+                //win plei 2
+            } else if (ganadorNombre == nombreJ2) {
+                dao.insertarOactualizar(p1.copy(looses = p1.looses + 1, jugadas = p1.jugadas + 1))
+                dao.insertarOactualizar(p2.copy(wins = p2.wins + 1, jugadas = p2.jugadas + 1))
+            }
+        }
+    }
+}
+

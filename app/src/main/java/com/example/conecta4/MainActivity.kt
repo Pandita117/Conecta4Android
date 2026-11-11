@@ -307,7 +307,7 @@ fun PantallaEstadisticas(
 
         OutlinedTextField(
             value = nombre_player,
-            onValueChange = { nombre_player = it },
+            onValueChange = { nombre_player = it.trim() },
             label = { Text("GamerTag") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -581,6 +581,7 @@ fun PantallaTablero(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
+            //de
             Button(
                 onClick = {
                     tablero = Array(6) { IntArray(6) { 0 } }
@@ -607,7 +608,10 @@ fun PantallaTablero(
                 Text("Rendirse")
             }
 
-            Button(onClick = onHome) {
+            Button(
+                onClick = onHome,
+                enabled = !juegoEnCurso
+            ) {
                 Text("Cambiar")
             }
         }
